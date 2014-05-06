@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Enron Network Dependency</title>
+<style>
+
+@import url(./style.css?20120427);
+
+#circle circle {
+  fill: none;
+  pointer-events: all;
+}
+
+.group path {
+  fill-opacity: .5;
+}
+
+path.chord {
+  stroke: #000;
+  stroke-width: .25px;
+}
+
+#circle:hover path.fade {
+  display: none;
+}
+html {
+  min-width: 1040px;
+}
+
+body {
+  position: relative;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  margin: 1em auto 4em auto;
+  width: 960px;
+}
+
+h1 {
+  font-size: 64px;
+  font-weight: 300;
+  letter-spacing: -2px;
+  margin: .3em 0 .1em 0;
+}
+
+
+h2 {
+  margin-top: 2em;
+}
+
+h1, h2 {
+  text-rendering: optimizeLegibility;
+}
+
+h2 a {
+  color: #ccc;
+  left: -20px;
+  position: absolute;
+  width: 740px;
+}
+
+footer {
+  font-size: small;
+  margin-top: 8em;
+}
+
+header aside {
+  margin-top: 82px;
+}
+
+header aside,
+footer aside {
+  color: #636363;
+  text-align: right;
+}
+
+aside {
+  font-size: small;
+  left: 780px;
+  position: absolute;
+  width: 180px;
+  padding-top: 100px;
+}
+
+.attribution {
+  font-size: small;
+  margin-bottom: 2em;
+}
+
+body > p, li > p {
+  line-height: 1.5em;
+}
+
+body > p {
+  width: 720px;
+}
+
+body > blockquote {
+  width: 640px;
+}
+
+li {
+  width: 680px;
+}
+
+a {
+  color: steelblue;
+}
+
+a:not(:hover) {
+  text-decoration: none;
+}
+
+pre, code, textarea {
+  font-family: "Menlo", monospace;
+}
+
+code {
+  line-height: 1em;
+}
+
+textarea {
+  font-size: 100%;
+}
+
+body > pre {
+  border-left: solid 2px #ccc;
+  padding-left: 18px;
+  margin: 2em 0 2em -20px;
+}
+
+.html .value,
+.javascript .string,
+.javascript .regexp {
+  color: #756bb1;
+}
+
+.html .tag,
+.css .tag,
+.javascript .keyword {
+  color: #3182bd;
+}
+
+.comment {
+  color: #636363;
+}
+
+.html .doctype,
+.javascript .number {
+  color: #31a354;
+}
+
+.html .attribute,
+.css .attribute,
+.javascript .class,
+.javascript .special {
+  color: #e6550d;
+}
+
+svg {
+  font: 10px sans-serif;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+sup, sub {
+  line-height: 0;
+}
+
+q:before,
+blockquote:before {
+  content: "“";
+}
+
+q:after,
+blockquote:after {
+  content: "”";
+}
+
+blockquote:before {
+  position: absolute;
+  left: 2em;
+}
+
+blockquote:after {
+  position: absolute;
+}
+
+
+</style>
+
+<h2>Enron Email Corpus - by Department</h2>
+<h3> I know, it's a really bright shade of yellow...</h3>
+
+<aside>Hover over each color or line to see who the sender was. 
+
+<p>The thickness of the line represents the weighted centrality score, according to the Evcent algorithm in the social network analysis package of R. 
+
+<p>Links are directed
+
+<p>CC's are weighted
+
+<p>Built with <a href="http://d3js.org/">d3.js</a>.
+
+<p> Made with love 
+
+</aside>
+
+<script src="http://d3js.org/d3.v2.min.js?2.8.1"></script>
+<hr> 
+<div style="padding-bottom:45px;"></div>
+<script>
+
+var width = 720,
+    height = 720,
+    outerRadius = Math.min(width, height) / 2 -10,
+    innerRadius = outerRadius - 24;
+
+var arc = d3.svg.arc()
+    .innerRadius(innerRadius)
+    .outerRadius(outerRadius);
+
+var layout = d3.layout.chord()
+    .padding(.04)
+    .sortSubgroups(d3.descending)
+    .sortChords(d3.ascending);
+
+var path = d3.svg.chord()
+    .radius(innerRadius);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+   .append("g")
+    .attr("id", "circle")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+svg.append("circle")
+    .attr("r", outerRadius);
+
+d3.csv("peoples.csv", function(peoples) {
+  d3.json("matrix.json", function(matrix) {
+
+    // Compute the chord layout.
+    layout.matrix(matrix);
+
+    // Add a group per neighborhood.
+    var group = svg.selectAll(".group")
+        .data(layout.groups)
+      .enter().append("g")
+        .attr("class", "group")
+        .on("mouseover", mouseover);
+
+    // Add a mouseover title.
+    group.append("title").text(function(d, i) {
+      return peoples[i].name + ": " + Math.round(((d.value)/100)) + " emails sent";
+    });
+
+    // Add the group arc.
+    var groupPath = group.append("path")
+        .attr("id", function(d, i) { return "group" + i; })
+        .attr("d", arc)
+        .style("fill", function(d, i) { return peoples[i].color; });
+
+    // Add a text label.
+    var groupText = group.append("text")
+        .attr("x", 6)
+        .attr("dy", 15);
+
+    groupText.append("textPath")
+        .attr("xlink:href", function(d, i) { return "#group" + i; })
+        .text(function(d, i) { return peoples[i].name; });
+
+    // Remove the labels that don't fit. :(
+ 
+    // Add the chords.
+    var chord = svg.selectAll(".chord")
+        .data(layout.chords)
+      .enter().append("path")
+        .attr("class", "chord")
+        .style("fill", function(d) { return peoples[d.source.index].color; })
+        .attr("d", path);
+
+    // Add an elaborate mouseover title for each chod.
+    chord.append("title").text(function(d) {
+      return peoples[d.source.index].name
+          + " â†’ " + peoples[d.target.index].name
+          + ": " + formatPercent(d.source.value)
+          + "\n" + peoples[d.target.index].name
+          + " â†’ " + peoples[d.source.index].name
+          + ": " + formatPercent(d.target.value);
+    });
+
+    function mouseover(d, i) {
+      chord.classed("fade", function(p) {
+        return p.source.index != i
+            && p.target.index != i;
+      });
+    }
+  });
+});
+
+</script>
+
+
+
+<footer>
+  <aside>Cinco de Mayo! 2014</aside>
+  <a href="../" rel="author">Daniel Metz, Emily Proulx, David Khatami and Tim Kaye. </a>
+</footer>
