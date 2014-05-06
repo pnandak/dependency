@@ -22,13 +22,11 @@ path.chord {
 #circle:hover path.fade {
   display: none;
 }
-html {
-  min-width: 1040px;
-}
+
 
 body {
   position: relative;
-  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  font-family: "Times", Helvetica, sans-serif;
   margin: 1em auto 4em auto;
   width: 960px;
 }
@@ -43,10 +41,6 @@ h1 {
 
 h2 {
   margin-top: 2em;
-}
-
-h1, h2 {
-  text-rendering: optimizeLegibility;
 }
 
 h2 a {
@@ -191,7 +185,6 @@ blockquote:after {
 </style>
 
 <h2>Enron Email Corpus - by Department</h2>
-<h3> I know, it's a really bright shade of yellow...</h3>
 
 <aside>Hover over each color or line to see who the sender was. 
 
@@ -203,7 +196,7 @@ blockquote:after {
 
 <p>Built with <a href="http://d3js.org/">d3.js</a>.
 
-<p> Made with love 
+<p> Made with boba tea and donuts
 
 </aside>
 
@@ -239,65 +232,63 @@ var svg = d3.select("body").append("svg")
 svg.append("circle")
     .attr("r", outerRadius);
 
+//load ze data
+// peoples.csv has three columns - name, centrality score, and color. Same colors indicate same department
+//matrix is the adjacency matrix w/o column or row names
 d3.csv("peoples.csv", function(peoples) {
   d3.json("matrix.json", function(matrix) {
 
     // Compute the chord layout.
-    layout.matrix(matrix);
+    layout.matrix(matrix); //whoo d3
 
     // Add a group per neighborhood.
     var group = svg.selectAll(".group")
         .data(layout.groups)
-      .enter().append("g")
+        .enter().append("g")
         .attr("class", "group")
         .on("mouseover", mouseover);
 
-    // Add a mouseover title.
+    //Mouseover for group
     group.append("title").text(function(d, i) {
-      return peoples[i].name + ": " + Math.round(((d.value)/100)) + " emails sent";
+      return peoples[i].name + " : " + Math.round(((d.value))) + " emails sent";
     });
 
-    // Add the group arc.
+    // arc 
     var groupPath = group.append("path")
         .attr("id", function(d, i) { return "group" + i; })
         .attr("d", arc)
         .style("fill", function(d, i) { return peoples[i].color; });
 
-    // Add a text label.
+    // text label
     var groupText = group.append("text")
         .attr("x", 6)
         .attr("dy", 15);
 
     groupText.append("textPath")
         .attr("xlink:href", function(d, i) { return "#group" + i; })
-        .text(function(d, i) { return peoples[i].name; });
+        .text(function(d, i) { return "   " + peoples[i].name; });
+
 
     // Remove the labels that don't fit. :(
+        groupText.filter(function(d, i) { return groupPath[0][i].getTotalLength() / 2 - 16 < this.getComputedTextLength(); })
+        .remove();
  
     // Add the chords.
     var chord = svg.selectAll(".chord")
         .data(layout.chords)
-      .enter().append("path")
+        .enter().append("path")
         .attr("class", "chord")
         .style("fill", function(d) { return peoples[d.source.index].color; })
         .attr("d", path);
 
-    // Add an elaborate mouseover title for each chod.
-    chord.append("title").text(function(d) {
-      return peoples[d.source.index].name
-          + " â†’ " + peoples[d.target.index].name
-          + ": " + formatPercent(d.source.value)
-          + "\n" + peoples[d.target.index].name
-          + " â†’ " + peoples[d.source.index].name
-          + ": " + formatPercent(d.target.value);
-    });
+
 
     function mouseover(d, i) {
       chord.classed("fade", function(p) {
         return p.source.index != i
             && p.target.index != i;
       });
-    }
+    } 
   });
 });
 
@@ -306,6 +297,6 @@ d3.csv("peoples.csv", function(peoples) {
 
 
 <footer>
-  <aside>Cinco de Mayo! 2014</aside>
-  <a href="../" rel="author">Daniel Metz, Emily Proulx, David Khatami and Tim Kaye. </a>
+  <h3>Cinco de Mayo! 2014</h3>
+  <h5 style="color: #336666;">Daniel Metz, Emily Proulx, David Khatami and Tim Kaye. </h5>
 </footer>
