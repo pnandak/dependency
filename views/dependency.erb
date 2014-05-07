@@ -249,8 +249,10 @@ d3.csv("peoples.csv", function(peoples) {
         .on("mouseover", mouseover);
 
     //Mouseover for group
-    group.append("title").text(function(d, i) {
-      return peoples[i].name + " : " + Math.round(((d.value))) + " emails sent";
+    group.append("title")
+     
+    .text(function(d, i) {
+      return peoples[i].name + " : " + Math.round(((d.value))) + " emailss sent";
     });
 
     // arc 
@@ -280,6 +282,18 @@ d3.csv("peoples.csv", function(peoples) {
         .attr("class", "chord")
         .style("fill", function(d) { return peoples[d.source.index].color; })
         .attr("d", path);
+
+    chord.append("title")
+    .text(function(d) {
+      //.style("fill", function(d) {return #FFFFFF; })
+      //.attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
+      return peoples[d.source.index].name
+          + " sent " + Math.round((d.source.value))
+          + " emails to " + peoples[d.target.index].name
+          + "\n" + peoples[d.target.index].name
+          + " sent " + Math.round((d.target.value)) 
+          + " emails to " + peoples[d.source.index].name;
+    });
 
 
 
