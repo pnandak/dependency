@@ -197,8 +197,8 @@ blockquote:after {
 
 var width = 920,
     height = 1020,
-    outerRadius = Math.min(width, height) / 2 -78,
-    innerRadius = outerRadius - 35;
+    outerRadius = Math.min(width, height) / 2 -88,
+    innerRadius = outerRadius - 9;
 
 var arc = d3.svg.arc()
     .innerRadius(innerRadius)
@@ -225,7 +225,7 @@ svg.append("circle")
 //load ze data
 // peoples.csv has three columns - name, centrality score, and color. Same colors indicate same department
 //matrix is the adjacency matrix w/o column or row names
-d3.csv("peoples.csv", function(peoples) {
+d3.csv("peoples2.csv", function(peoples) {
   d3.json("matrix.json", function(matrix) {
 
     // Compute the chord layout.
@@ -248,7 +248,7 @@ d3.csv("peoples.csv", function(peoples) {
         .attr("xlink:href", function (d) {
             return "#group" + d.index;
         })
-        .attr("dy", ".35em")
+        .attr("dy", ".5em")
         .attr("color", "#fff")
         .text(function (d) {
             return peoples[d.index].name;
@@ -263,7 +263,7 @@ d3.csv("peoples.csv", function(peoples) {
                 //store the midpoint angle in the data object
                 
                 return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
-                    " translate(" + (innerRadius + 26) + ")" + 
+                    " translate(" + (innerRadius + 9) + ")" + 
                     (d.angle > Math.PI ? " rotate(180)" : " rotate(0)"); 
                 //include the rotate zero so that transforms can be interpolated
             })
